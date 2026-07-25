@@ -1107,8 +1107,17 @@
             return;
         }
 
-        navigator.serviceWorker.register(siteRelativePath("sw.js"), { scope: getScriptBasePath() || "./" }).catch(function () {
-            /* Offline caching is an enhancement; the site remains fully usable without it. */
+        navigator.serviceWorker.register(siteRelativePath("sw.js"), { scope: getScriptBasePath() || "./" }).then(function (registration) {
+            /* While a visitor keeps the site open, refresh cached files every hour. */
+            function refreshHourlyCache() {
+                if (registration.active) {
+                    registration.active.postMessage({ type: "refresh-cache" });
+                }
+            }
+
+            window.setInterval(refreshHourlyCache, 60 * 60 * 1000);
+        }).catch(function () {
+            /* The site remains fully usable if offline caching is unavailable. */
         });
     }
 
