@@ -1,5 +1,5 @@
 /* Offline cache with a maximum age of one hour. */
-const CACHE_NAME = "theophilus-portfolio-hourly-v1";
+const CACHE_NAME = "theophilus-portfolio-hourly-v2";
 const MAX_CACHE_AGE_MS = 60 * 60 * 1000;
 const CACHE_TIME_HEADER = "x-portfolio-cache-time";
 
