@@ -99,15 +99,15 @@
             savedLanguage = null;
         }
 
-        /* A visitor's explicit choice always wins over a language folder in the URL.
-           This prevents the page from switching back after English is selected. */
-        if (validLanguages.indexOf(savedLanguage) !== -1) {
-            return savedLanguage;
-        }
-
+        /* A page inside a language folder always uses that folder's language.
+           This prevents a saved choice from forcing a redirect loop. */
         var pathLanguage = getPathLanguage();
         if (pathLanguage) {
             return pathLanguage;
+        }
+
+        if (validLanguages.indexOf(savedLanguage) !== -1) {
+            return savedLanguage;
         }
 
         /* Do not translate automatically from the visitor's browser language.
@@ -277,9 +277,15 @@
             select.value = currentLanguage;
             select.addEventListener("change", function () {
                 var selectedLanguage = select.value;
+                var currentPathLanguage = getPathLanguage();
 
-                /* Translate in place instead of navigating to another folder.
-                   One selection always applies immediately and shows confirmation. */
+                /* Each language has its own folder. Navigate once to that folder;
+                   no language is redirected automatically after the page loads. */
+                if (selectedLanguage !== currentPathLanguage) {
+                    window.location.assign(getLocalizedPageUrl(selectedLanguage));
+                    return;
+                }
+
                 loadLocale(selectedLanguage).then(function () {
                     translateDocument();
                     applyI18nCssLabels();
@@ -334,10 +340,11 @@
         var page = getCurrentPage();
         var currentLanguageFromPath = getPathLanguage();
 
-        if (language === "en") {
-            return currentLanguageFromPath ? "../" + page : page;
+        if (currentLanguageFromPath === language) {
+            return page;
         }
 
+        /* Every language, including English, has its own folder. */
         return currentLanguageFromPath ? "../" + language + "/" + page : language + "/" + page;
     }
 
