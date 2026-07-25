@@ -1126,7 +1126,45 @@
         });
     }
 
+    function init404Recovery() {
+        var is404Page = getCurrentPage() === "404.html" || document.querySelector(".page-state #not-found-title");
+        var navigation = window.performance && window.performance.getEntriesByType ? window.performance.getEntriesByType("navigation")[0] : null;
+        var wasRefreshed = navigation ? navigation.type === "reload" : (window.performance && window.performance.navigation && window.performance.navigation.type === 1);
+        var lastPage;
+
+        if (is404Page) {
+            if (!wasRefreshed) {
+                return false;
+            }
+
+            try {
+                lastPage = window.sessionStorage.getItem("portfolio-last-valid-page");
+            } catch (error) {
+                lastPage = null;
+            }
+
+            if (lastPage && lastPage.indexOf(window.location.origin + "/") === 0 && lastPage.indexOf("/404.html") === -1) {
+                window.location.replace(lastPage);
+                return true;
+            }
+
+            return false;
+        }
+
+        try {
+            window.sessionStorage.setItem("portfolio-last-valid-page", window.location.href);
+        } catch (error) {
+            /* Recovery remains optional if session storage is unavailable. */
+        }
+
+        return false;
+    }
+
     function initializeSite() {
+        if (init404Recovery()) {
+            return;
+        }
+
         initAccessibility();
         translateDocument();
         initCharacterCounters();
