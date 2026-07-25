@@ -282,6 +282,11 @@
                 /* Each language has its own folder. Navigate once to that folder;
                    no language is redirected automatically after the page loads. */
                 if (selectedLanguage !== currentPathLanguage) {
+                    try {
+                        window.sessionStorage.setItem("portfolio-language-updated", selectedLanguage);
+                    } catch (error) {
+                        /* Navigation still works when session storage is unavailable. */
+                    }
                     window.location.assign(getLocalizedPageUrl(selectedLanguage));
                     return;
                 }
@@ -295,6 +300,21 @@
                 });
             });
         });
+    }
+
+    function showPendingLanguageToast() {
+        var updatedLanguage;
+
+        try {
+            updatedLanguage = window.sessionStorage.getItem("portfolio-language-updated");
+            window.sessionStorage.removeItem("portfolio-language-updated");
+        } catch (error) {
+            updatedLanguage = null;
+        }
+
+        if (updatedLanguage && updatedLanguage === currentLanguage) {
+            showToast(translate("Language updated to {{language}}").replace("{{language}}", languageLabels[currentLanguage]));
+        }
     }
 
     function updateThemeOptions(selectedTheme) {
@@ -1187,6 +1207,7 @@
         }
 
         initLanguageSelectors();
+        showPendingLanguageToast();
         initPrimaryNavigation();
         initResponsiveNavigation();
         registerServiceWorker();
