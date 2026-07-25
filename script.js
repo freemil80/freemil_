@@ -108,16 +108,8 @@
             return savedLanguage;
         }
 
-        var browserLanguages = navigator.languages || [navigator.language || navigator.userLanguage || "en"];
-
-        for (var index = 0; index < browserLanguages.length; index += 1) {
-            var languageFamily = normalizeLanguageTag(browserLanguages[index]);
-
-            if (validLanguages.indexOf(languageFamily) !== -1) {
-                return languageFamily;
-            }
-        }
-
+        /* Do not translate automatically from the visitor's browser language.
+           English remains the default until the visitor chooses a language. */
         return "en";
     }
 
