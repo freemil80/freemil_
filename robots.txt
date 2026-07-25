@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Live GitHub Pages domain configured.
+Sitemap: https://freemil80.github.io/freemil_/sitemap.xml
