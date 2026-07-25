@@ -99,13 +99,15 @@
             savedLanguage = null;
         }
 
+        /* A visitor's explicit choice always wins over a language folder in the URL.
+           This prevents the page from switching back after English is selected. */
+        if (validLanguages.indexOf(savedLanguage) !== -1) {
+            return savedLanguage;
+        }
+
         var pathLanguage = getPathLanguage();
         if (pathLanguage) {
             return pathLanguage;
-        }
-
-        if (validLanguages.indexOf(savedLanguage) !== -1) {
-            return savedLanguage;
         }
 
         /* Do not translate automatically from the visitor's browser language.
@@ -275,13 +277,9 @@
             select.value = currentLanguage;
             select.addEventListener("change", function () {
                 var selectedLanguage = select.value;
-                var currentPathLanguage = getPathLanguage();
 
-                if (selectedLanguage !== currentPathLanguage && (currentPathLanguage || selectedLanguage !== "en")) {
-                    window.location.assign(getLocalizedPageUrl(selectedLanguage));
-                    return;
-                }
-
+                /* Translate in place instead of navigating to another folder.
+                   One selection always applies immediately and shows confirmation. */
                 loadLocale(selectedLanguage).then(function () {
                     translateDocument();
                     applyI18nCssLabels();
@@ -328,7 +326,7 @@
     function getPathLanguage() {
         var pathParts = window.location.pathname.split("/");
         return pathParts.find(function (part) {
-            return validLanguages.indexOf(part) !== -1 && part !== "en";
+            return validLanguages.indexOf(part) !== -1;
         }) || null;
     }
 
